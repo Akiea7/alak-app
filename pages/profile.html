@@ -1,0 +1,68 @@
+<div class="pb-24 pt-8 px-5 max-w-lg mx-auto min-h-screen">
+    
+    <button onclick="switchPage('home')" class="mb-6 flex items-center justify-center w-10 h-10 bg-white rounded-full shadow-md active:scale-95 transition-transform">
+        <i data-lucide="arrow-right" class="w-5 h-5 text-gray-700"></i>
+    </button>
+
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 mb-6 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -z-10"></div>
+        
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center border-4 border-white shadow-sm shrink-0">
+                <i data-lucide="user" class="w-8 h-8 text-blue-600"></i>
+            </div>
+            <div>
+                <h2 id="profileName" class="text-xl font-bold text-gray-800">زائر</h2>
+                <p id="profilePhone" class="text-sm text-gray-500 mt-1">يرجى تسجيل الدخول</p>
+            </div>
+        </div>
+
+        <div id="authButtonsContainer">
+            <button onclick="openLoginModal()" class="w-full bg-[#0f172a] text-white py-3 rounded-xl font-bold text-sm shadow-md shadow-slate-200 active:scale-95 transition-transform">
+                تسجيل الدخول
+            </button>
+        </div>
+    </div>
+
+    <div class="space-y-3">
+        
+        <button onclick="toggleAppMode()" class="w-full bg-white p-4 rounded-2xl flex items-center justify-between shadow-sm border border-gray-100 active:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center">
+                    <i data-lucide="steering-wheel" class="w-5 h-5 text-emerald-600"></i>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-gray-800 text-sm">وضع الكابتن</p>
+                    <p class="text-xs text-gray-500 mt-0.5">استقبل الطلبات وحقق أرباح</p>
+                </div>
+            </div>
+            <i data-lucide="chevron-left" class="w-5 h-5 text-gray-400"></i>
+        </button>
+
+        <button class="w-full bg-white p-4 rounded-2xl flex items-center justify-between shadow-sm border border-gray-100 active:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-50 rounded-full flex items-center justify-center">
+                    <i data-lucide="wallet" class="w-5 h-5 text-amber-600"></i>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-gray-800 text-sm">المحفظة</p>
+                    <p class="text-xs text-gray-500 mt-0.5">الرصيد: 0 د.ع</p>
+                </div>
+            </div>
+            <i data-lucide="chevron-left" class="w-5 h-5 text-gray-400"></i>
+        </button>
+
+        <button class="w-full bg-white p-4 rounded-2xl flex items-center justify-between shadow-sm border border-gray-100 active:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
+                    <i data-lucide="headphones" class="w-5 h-5 text-blue-600"></i>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-gray-800 text-sm">الدعم الفني</p>
+                    <p class="text-xs text-gray-500 mt-0.5">تواصل معنا لأي مشكلة</p>
+                </div>
+            </div>
+            <i data-lucide="chevron-left" class="w-5 h-5 text-gray-400"></i>
+        </button>
+    </div>
+</div>
