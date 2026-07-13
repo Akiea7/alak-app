@@ -8,6 +8,7 @@ import { UI } from './ui.js';
 import { Helpers } from './utils/helpers.js';
 import { MESSAGES } from './utils/messages.js';
 import { Auth } from './features/auth.js';
+import './events.js';
 
 // تحويل الدالة إلى async حتى ننتظر تحميل الصفحات
 async function initApp() {
