@@ -8,29 +8,32 @@ import { UI } from './ui.js';
 import { Helpers } from './utils/helpers.js';
 import { MESSAGES } from './utils/messages.js';
 import { Auth } from './features/auth.js';
-import './events.js';
+import { MapController } from './features/mapController.js'; // استيراد متحكم الخريطة
+import './events.js'; // استيراد ملف الأحداث
 
-// تحويل الدالة إلى async حتى ننتظر تحميل الصفحات
 async function initApp() {
     console.log(`🚀 تم تشغيل تطبيق: ${CONFIG.APP_NAME} بنجاح`);
 
     // 1. تحميل محتوى جميع الصفحات من مجلد pages قبل فعل أي شيء
     await UI.loadPages();
 
-    // 2. استرجاع بيانات المستخدم من الذاكرة المحلية
+    // 2. تشغيل الخريطة وتحديد موقع المستخدم
+    MapController.initializeMap();
+
+    // 3. استرجاع بيانات المستخدم من الذاكرة المحلية
     const savedUser = Storage.getUser();
     if (savedUser) {
         AppState.user.data = savedUser;
         AppState.user.isLoggedIn = true;
     }
 
-    // 3. تفعيل مراقب الاتصال بالإنترنت
+    // 4. تفعيل مراقب الاتصال بالإنترنت
     setupNetworkListeners();
 
-    // 4. عرض الصفحة الرئيسية كبداية بعد اكتمال التحميل
+    // 5. عرض الصفحة الرئيسية كبداية بعد اكتمال التحميل
     UI.switchPage('home');
 
-    // 5. مراقبة حالة الفايربيس وتحديث AppState تلقائياً
+    // 6. مراقبة حالة الفايربيس وتحديث AppState تلقائياً
     Auth.monitorAuthState((userState) => {
         console.log('👤 حالة المستخدم الحالية:', userState);
     });
