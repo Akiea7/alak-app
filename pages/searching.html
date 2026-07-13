@@ -1,0 +1,23 @@
+<div class="h-screen w-full flex flex-col items-center justify-center bg-[#f4f7fb] px-6 relative overflow-hidden">
+    
+    <div class="relative w-40 h-40 flex items-center justify-center mb-8">
+        <div class="absolute inset-0 border-4 border-blue-500 rounded-full animate-ping opacity-20"></div>
+        <div class="absolute inset-4 border-4 border-blue-500 rounded-full animate-ping opacity-40" style="animation-delay: 0.2s"></div>
+        <div class="absolute inset-8 border-4 border-blue-500 rounded-full animate-ping opacity-60" style="animation-delay: 0.4s"></div>
+        
+        <div class="relative w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center shadow-xl shadow-blue-500/30">
+            <i data-lucide="car" class="w-10 h-10 text-white"></i>
+        </div>
+    </div>
+
+    <h2 class="text-2xl font-black text-gray-800 mb-2">جاري البحث عن كابتن...</h2>
+    <p class="text-gray-500 text-center mb-10 text-sm font-semibold">يرجى الانتظار، نقوم بالتواصل مع أقرب السائقين لموقعك</p>
+
+    <div class="w-full max-w-sm h-1.5 bg-gray-200 rounded-full mb-10 overflow-hidden">
+        <div id="searchProgressBar" class="h-full bg-blue-600 rounded-full w-0 transition-all duration-200"></div>
+    </div>
+
+    <button onclick="cancelSearch()" class="w-full max-w-sm bg-white border border-red-100 text-red-500 font-bold py-4 rounded-xl shadow-sm active:bg-red-50 transition-colors">
+        إلغاء الطلب
+    </button>
+</div>
