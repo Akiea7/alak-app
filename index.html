@@ -9,18 +9,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- ربط ملف الجافاسكربت الرئيسي بنظام الـ Modules الجديد -->
     <script type="module" src="js/main.js" defer></script>
     
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* إخفاء الصفحات غير النشطة */
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
 </head>
-<body class="bg-[#f4f7fb] text-[#0f172a] font-cairo overflow-x-hidden" dir="rtl">
+<body class="bg-[#f4f7fb] text-[#0f172a] font-cairo overflow-x-hidden">
 
-    <!-- الحاوية الرئيسية للتطبيق -->
-    <div id="app" class="min-h-screen relative">
-        <main class="px-5">
-            <div id="page-home" class="page active"></div>
-        </main>
+    <div id="app" class="min-h-screen relative pb-20">
+        
+        <div id="page-home" class="page active"></div>
+        <div id="page-profile" class="page"></div>
+        <div id="page-searching" class="page"></div>
+
+        <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.05)] rounded-t-3xl z-50 transition-transform duration-300">
+            <div class="flex justify-around items-center p-4">
+                
+                <button onclick="window.switchPage('home')" class="nav-btn flex flex-col items-center gap-1 active:scale-95 transition-transform text-blue-600">
+                    <i data-lucide="home" class="w-6 h-6"></i>
+                    <span class="text-[10px] font-bold">الرئيسية</span>
+                </button>
+                
+                <button onclick="window.switchPage('services')" class="nav-btn flex flex-col items-center gap-1 active:scale-95 transition-transform text-gray-400 hover:text-blue-600">
+                    <i data-lucide="grid" class="w-6 h-6"></i>
+                    <span class="text-[10px] font-bold">الخدمات</span>
+                </button>
+                
+                <button onclick="window.switchPage('profile')" class="nav-btn flex flex-col items-center gap-1 active:scale-95 transition-transform text-gray-400 hover:text-blue-600">
+                    <i data-lucide="user" class="w-6 h-6"></i>
+                    <span class="text-[10px] font-bold">حسابي</span>
+                </button>
+
+            </div>
+        </nav>
+        
     </div>
 
 </body>
