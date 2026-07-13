@@ -4,8 +4,8 @@
 import { UI } from './ui.js';
 import { AppState } from './core/appState.js';
 import { Booking } from './features/booking.js';
+import { SearchController } from './features/searchController.js'; // استدعاء متحكم البحث
 
-// 1. تعريف الدوال التي يتم استدعاؤها مباشرة من أزرار الـ HTML (مثل onclick)
 window.cancelSearch = () => {
     UI.switchPage('home');
     AppState.resetTrip();
@@ -20,21 +20,23 @@ window.toggleAppMode = () => {
     console.log('سيتم التحويل لوضع الكابتن / تقديم طلب KYC...');
 };
 
-// 2. مراقبة الأزرار داخل الصفحات التي تم تحميلها ديناميكياً
+// مراقبة الأزرار داخل الصفحات التي تم تحميلها ديناميكياً
 document.addEventListener('DOMContentLoaded', () => {
-    // إعطاء مهلة نصف ثانية لضمان اكتمال تحميل صفحات الـ HTML بواسطة دالة loadPages
+    // إعطاء مهلة لضمان اكتمال تحميل صفحات الـ HTML 
     setTimeout(() => {
+        
+        // تفعيل محرك البحث عن الوجهة
+        SearchController.setupDestinationSearch();
+
         const confirmBtn = document.getElementById('confirmRideBtn');
         
         if (confirmBtn) {
             confirmBtn.addEventListener('click', () => {
-                // استدعاء دالة تأكيد الطلب من المنطق دون تعديل الواجهة مباشرة هنا
                 const result = Booking.confirmRide();
                 
                 if (result.success) {
                     UI.switchPage('searching');
                     
-                    // تشغيل حركة شريط التحميل في شاشة البحث
                     const bar = document.getElementById('searchProgressBar');
                     if (bar) {
                         bar.style.width = '0%';
