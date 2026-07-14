@@ -1,19 +1,17 @@
 // js/core/config.js
-// هذا الملف يحتوي على كل الثوابت والإعدادات حتى نسهل التعديل بالمستقبل
+// يحتوي على الثوابت وإعدادات التطبيق الأساسية
 
 export const CONFIG = {
-    APP_NAME: "ألك",
+    SHOP_PHONE: "9647000000000",
     
-    // إعدادات الخريطة
-    MAP: {
-        DEFAULT_CENTER: { lat: 33.6702, lng: 44.3794 }, // مركز الطارمية
-        DEFAULT_ZOOM: 15
-    },
-    
-    // أسعار التكسي
-    PRICING: {
-        BASE_FARE: 1000,     // السعر الأساسي (فتحة العداد)
-        PER_KM_RATE: 750,    // سعر الكيلومتر الواحد
-        MIN_FARE: 1500       // الحد الأدنى لسعر الرحلة
-    }
+    // ستايل خريطة جوجل الداكن المأخوذ من كودك الأصلي
+    DARK_MAP_STYLE: [
+        { elementType: "geometry", stylers: [{ color: "#212121" }] },
+        { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
+        { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#757575" }] },
+        { featureType: "road", elementType: "geometry.fill", stylers: [{ color: "#2c2c2c" }] },
+        { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] }
+    ]
 };
