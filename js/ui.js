@@ -1,78 +1,83 @@
 // js/ui.js
-// هذا الملف مسؤول عن الواجهة (UI) وتحديث عناصر الشاشة (DOM)
+import { Storage } from './core/storage.js';
+import { CONFIG } from './core/config.js';
 
 export const UI = {
-    elements: {
-        appContainer: document.getElementById('app')
-    },
+    async switchPage(pageId, addToHistory = true) {
+        let folder = 'pages'; let fileName = pageId; let navId = pageId;
 
-    // دالة ديناميكية لتحميل محتوى الصفحات من مجلد pages
-    async loadPages() {
-        const pagesToLoad = ['home', 'profile', 'searching'];
+        if (pageId === 'services') { folder = 'services'; fileName = 'menu'; } 
+        else if (pageId === 'market') { folder = 'services'; fileName = 'market'; navId = 'services'; } 
+        else if (pageId === 'shop') { folder = 'services'; fileName = 'shop'; navId = 'services'; }
+
+        if (addToHistory) { history.pushState({ page: pageId }, '', `#${pageId}`); }
+
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const activeNav = document.querySelector(`.nav-item[data-page="${navId}"]`);
+        if (activeNav) activeNav.classList.add('active');
         
-        for (const page of pagesToLoad) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        const container = document.getElementById('page-' + pageId);
+        if (container) container.classList.add('active');
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (container && container.innerHTML.trim() === '') {
+            container.innerHTML = '<div class="flex justify-center mt-32"><div class="w-10 h-10 border-4 border-gold-400 border-t-transparent rounded-full animate-spin"></div></div>';
             try {
-                const response = await fetch(`pages/${page}.html`);
-                if (response.ok) {
-                    const html = await response.text();
-                    document.getElementById(`page-${page}`).innerHTML = html;
-                } else {
-                    console.error(`فشل تحميل صفحة: ${page}`);
-                }
-            } catch (error) {
-                console.error(`خطأ في جلب صفحة ${page}:`, error);
-            }
-        }
-        
-        // تفعيل مكتبة الأيقونات بعد تحميل محتوى الصفحات
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    },
-
-    // دالة التنقل بين الصفحات (SPA Navigation)
-    switchPage(pageId) {
-        // 1. إخفاء كل الصفحات وإظهار المطلوبة
-        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-        const targetPage = document.getElementById(`page-${pageId}`);
-        if (targetPage) {
-            targetPage.classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // 2. تحديث ألوان أيقونات الشريط السفلي
-        const navButtons = document.querySelectorAll('#bottomNav .nav-btn');
-        if (navButtons.length > 0) {
-            navButtons.forEach(btn => {
-                btn.classList.remove('text-blue-600');
-                btn.classList.add('text-gray-400');
+                const url = `/${folder}/${fileName}.html?t=${new Date().getTime()}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Not found');
+                const html = await response.text();
+                container.innerHTML = html;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 
-                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(pageId)) {
-                    btn.classList.remove('text-gray-400');
-                    btn.classList.add('text-blue-600');
-                }
-            });
-        }
-
-        // 3. إخفاء الشريط السفلي في شاشة "البحث عن كابتن" لإعطاء مساحة كاملة
-        const bottomNav = document.getElementById('bottomNav');
-        if (bottomNav) {
-            if (pageId === 'searching') {
-                bottomNav.classList.add('translate-y-full');
-            } else {
-                bottomNav.classList.remove('translate-y-full');
+                if (pageId === 'profile') setTimeout(window.renderProfileData, 50); 
+                if (pageId === 'store-dashboard') setTimeout(window.renderStoreData, 50);
+            } catch (error) {
+                container.innerHTML = '<div class="text-center text-red-400 mt-20 font-bold">عذراً، حدث خطأ في تحميل الصفحة. يرجى التحديث.</div>';
             }
+        } else {
+            if (pageId === 'profile') window.renderProfileData();
+            if (pageId === 'store-dashboard') window.renderStoreData();
         }
     },
 
-    toggleVisibility(element, show) {
-        if (!element) return;
-        if (show) {
-            element.classList.remove('hidden');
-            element.classList.add('flex');
+    toggleMenu() {
+        const drawer = document.getElementById('menuDrawer');
+        const overlay = document.getElementById('menuOverlay');
+        if (drawer.classList.contains('translate-x-full')) {
+            drawer.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('pause-animations');
         } else {
-            element.classList.add('hidden');
-            element.classList.remove('flex');
+            drawer.classList.add('translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('pause-animations');
         }
+    },
+
+    scrollToBooking() {
+        const section = document.getElementById('bookingSection');
+        if (section) { section.scrollIntoView({ behavior: 'smooth', block: 'center' }); } 
+        else {
+            setTimeout(() => {
+                const retrySection = document.getElementById('bookingSection');
+                if(retrySection) retrySection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
+        }
+    },
+
+    toggleTheme() {
+        const body = document.body;
+        body.classList.toggle('light-mode');
+        const isLight = body.classList.contains('light-mode');
+        Storage.saveTheme(isLight ? 'light' : 'dark');
+        
+        if (typeof map !== 'undefined' && map) {
+            map.setOptions({ styles: isLight ? [] : CONFIG.DARK_MAP_STYLE });
+        }
+        window.showToast(isLight ? 'تم تفعيل المظهر الفاتح ☀️' : 'تم تفعيل المظهر الداكن 🌙');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    },
+
+    initTheme() {
+        if (Storage.getTheme() === 'light') { document.body.classList.add('light-mode'); }
     }
 };
