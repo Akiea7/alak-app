@@ -1,0 +1,111 @@
+<div class="pb-24 pt-4 animate-fade-in space-y-5 overflow-hidden w-full">
+    <div id="store-home-view" class="space-y-5">
+        <div class="flex justify-between items-center bg-[#0A1628] p-4 rounded-3xl border border-white/5 relative overflow-hidden transform-gpu">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gold-400/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+            <div class="flex items-center gap-3 relative z-10 w-full">
+                <div class="relative shrink-0">
+                    <img src="https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=200&h=200&fit=crop" class="w-12 h-12 rounded-full border border-white/10 object-cover" alt="Store">
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-base font-black text-white leading-tight">سوبر ماركت النور</h2>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[9px] text-white/60 font-bold">متجر نشط</span>
+                    </div>
+                </div>
+                <button onclick="showToast('تعديل بيانات المتجر قريباً')" class="border border-gold-400/30 bg-gold-400/5 rounded-xl px-2 py-1.5 flex flex-col items-center justify-center gap-1 hover:bg-gold-400/10 transition shrink-0">
+                    <div class="flex items-center gap-1 text-gold-400"><span class="text-[9px] font-bold">تعديل</span><i data-lucide="edit-3" class="w-3 h-3"></i></div>
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-xs font-black text-white mb-2 px-1">نظرة عامة</h3>
+            <div class="grid grid-cols-2 gap-2">
+                <div onclick="switchStoreSubView('orders')" class="bg-[#0A1628] border border-white/5 rounded-2xl p-3 flex flex-col items-center text-center justify-center cursor-pointer hover:border-white/10 transition transform-gpu">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-1.5"><i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-500"></i></div>
+                    <h3 class="text-xl font-black text-white leading-none mb-1">256</h3>
+                    <p class="text-[10px] text-white/60 font-bold mb-2">إجمالي الطلبات</p>
+                </div>
+                <div onclick="switchStoreSubView('orders')" class="bg-[#0A1628] border border-white/5 rounded-2xl p-3 flex flex-col items-center text-center justify-center cursor-pointer hover:border-white/10 transition transform-gpu">
+                    <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center mb-1.5"><i data-lucide="package" class="w-4 h-4 text-blue-500"></i></div>
+                    <h3 class="text-xl font-black text-white leading-none mb-1" id="dash-orders-count">1</h3>
+                    <p class="text-[10px] text-white/60 font-bold">طلبات اليوم النشطة</p>
+                </div>
+                <div onclick="switchStoreSubView('products')" class="bg-[#0A1628] border border-white/5 rounded-2xl p-3 flex flex-col items-center text-center justify-center cursor-pointer hover:border-white/10 transition transform-gpu">
+                    <div class="w-8 h-8 rounded-lg bg-gold-400/10 flex items-center justify-center mb-1.5"><i data-lucide="layout-grid" class="w-4 h-4 text-gold-400"></i></div>
+                    <h3 class="text-xl font-black text-white leading-none mb-1" id="dash-products-count">3</h3>
+                    <p class="text-[10px] text-white/60 font-bold">المنتجات النشطة</p>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-xs font-black text-white mb-2 px-1">إدارة متجرك</h3>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="switchStoreSubView('products')" class="bg-[#0A1628] border border-white/5 rounded-xl py-3 px-2 flex flex-col items-center justify-center text-center gap-1">
+                    <i data-lucide="package-search" class="w-5 h-5 text-gold-400"></i><h4 class="text-[9px] font-bold text-white mt-1">المنتجات</h4>
+                </button>
+                <button onclick="switchStoreSubView('offers')" class="bg-[#0A1628] border border-white/5 rounded-xl py-3 px-2 flex flex-col items-center justify-center text-center gap-1">
+                    <i data-lucide="badge-percent" class="w-5 h-5 text-gold-400"></i><h4 class="text-[9px] font-bold text-white mt-1">العروض</h4>
+                </button>
+                <button onclick="switchStoreSubView('orders')" class="bg-[#0A1628] border border-white/5 rounded-xl py-3 px-2 flex flex-col items-center justify-center text-center gap-1">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 text-gold-400"></i><h4 class="text-[9px] font-bold text-white mt-1">الطلبات</h4>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="store-products-view" class="hidden space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <h3 class="text-sm font-black text-white flex items-center gap-2"><i data-lucide="package-search" class="w-4 h-4 text-gold-400"></i> إدارة المنتجات</h3>
+            <button onclick="switchStoreSubView('home')" class="text-xs font-bold text-gold-400 bg-gold-400/10 px-3 py-1.5 rounded-xl flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> رجوع</button>
+        </div>
+        <div class="bg-[#0A1628] border border-white/5 rounded-2xl p-4 space-y-3 shadow-inner">
+            <h4 class="text-xs font-black text-white/80">➕ إضافة منتج جديد</h4>
+            <label id="uploadImageLabel" class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-white/10 rounded-xl cursor-pointer">
+                <i data-lucide="image-plus" class="w-6 h-6 text-white/40 mb-2"></i>
+                <input type="file" id="newProdImage" class="hidden" accept="image/*" onchange="previewProductImage(this)">
+            </label>
+            <div id="imagePreviewContainer" class="hidden relative w-full h-32 rounded-xl overflow-hidden border border-white/10">
+                <img id="imagePreview" src="" class="w-full h-full object-cover">
+                <button onclick="removeProductImage()" class="absolute top-2 right-2 w-8 h-8 bg-red-500/90 text-white rounded-full flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="newProdName" placeholder="اسم المنتج" class="bg-[#060F1D] rounded-xl px-3 py-2.5 text-xs text-white placeholder-white/30 border border-white/5 outline-none focus:border-gold-400 text-right" dir="rtl">
+                <input type="number" id="newProdPrice" placeholder="السعر (د.ع)" class="bg-[#060F1D] rounded-xl px-3 py-2.5 text-xs text-white placeholder-white/30 border border-white/5 outline-none focus:border-gold-400 text-right" dir="rtl">
+            </div>
+            <textarea id="newProdDesc" placeholder="وصف المنتج (اختياري)" rows="2" class="w-full bg-[#060F1D] rounded-xl px-3 py-2.5 text-xs text-white placeholder-white/30 border border-white/5 outline-none focus:border-gold-400 text-right resize-none" dir="rtl"></textarea>
+            <button onclick="addNewStoreProduct()" class="w-full bg-gold-400 text-[#060F1D] font-black py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-gold-400/10">
+                <i data-lucide="plus" class="w-4 h-4"></i> حفظ ونشر المنتج
+            </button>
+        </div>
+        <div class="space-y-2" id="store-products-list-container"></div>
+    </div>
+
+    <div id="store-orders-view" class="hidden space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <h3 class="text-sm font-black text-white flex items-center gap-2"><i data-lucide="clipboard-list" class="w-4 h-4 text-gold-400"></i> الطلبات الحالية</h3>
+            <button onclick="switchStoreSubView('home')" class="text-xs font-bold text-gold-400 bg-gold-400/10 px-3 py-1.5 rounded-xl flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> رجوع</button>
+        </div>
+        <div class="space-y-3" id="store-orders-list-container"></div>
+    </div>
+
+    <div id="store-offers-view" class="hidden space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <h3 class="text-sm font-black text-white flex items-center gap-2"><i data-lucide="badge-percent" class="w-4 h-4 text-gold-400"></i> العروض والخصومات</h3>
+            <button onclick="switchStoreSubView('home')" class="text-xs font-bold text-gold-400 bg-gold-400/10 px-3 py-1.5 rounded-xl flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> رجوع</button>
+        </div>
+        <div class="bg-[#0A1628] border border-white/5 rounded-2xl p-4 space-y-3">
+            <h4 class="text-xs font-black text-white">🏷️ إنشاء كود خصم للمتجر</h4>
+            <div class="space-y-2">
+                <input type="text" id="promoCodeInput" placeholder="كود الخصم (مثال: ALNOOR10)" class="w-full bg-[#060F1D] rounded-xl px-4 py-3 text-xs text-white placeholder-white/30 border border-white/5 outline-none focus:border-gold-400 uppercase tracking-wider">
+                <input type="number" id="promoDiscountInput" placeholder="نسبة الخصم (مثال: 10%)" class="w-full bg-[#060F1D] rounded-xl px-4 py-3 text-xs text-white placeholder-white/30 border border-white/5 outline-none focus:border-gold-400 text-right" dir="rtl">
+            </div>
+            <button onclick="showToast('تم تفعيل كود الخصم بنجاح وجاري نشره للعملاء!', 'success')" class="w-full bg-gold-400 text-[#060F1D] font-black py-3 rounded-xl text-xs flex items-center justify-center gap-1">
+                <i data-lucide="check" class="w-4 h-4"></i> تفعيل ونشر الكود
+            </button>
+        </div>
+    </div>
+</div>
+
