@@ -9,46 +9,711 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&language=ar"></script>
-    
-    <script type="module" src="js/main.js" defer></script>
-    
-    <style>
-        /* إخفاء الصفحات غير النشطة */
-        .page { display: none; }
-        .page.active { display: block; }
-    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=places&language=ar"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: { 400: '#F5B800', 500: '#E5A800', 600: '#CC9500' },
+                        midnight: { 400: '#0A1628', 500: '#060F1D', 600: '#040A14' }
+                    },
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-[#f4f7fb] text-[#0f172a] font-cairo overflow-x-hidden">
+<body class="bg-[#f4f7fb] text-[#0f172a] font-cairo overflow-x-hidden selection:bg-gold-400 selection:text-white" dir="rtl">
 
-    <div id="app" class="min-h-screen relative pb-20">
-        
-        <div id="page-home" class="page active"></div>
-        <div id="page-profile" class="page"></div>
-        <div id="page-searching" class="page"></div>
-
-        <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.05)] rounded-t-3xl z-50 transition-transform duration-300">
-            <div class="flex justify-around items-center p-4">
-                
-                <button onclick="window.switchPage('home')" class="nav-btn flex flex-col items-center gap-1 active:scale-95 transition-transform text-blue-600">
-                    <i data-lucide="home" class="w-6 h-6"></i>
-                    <span class="text-[10px] font-bold">الرئيسية</span>
-                </button>
-                
-                <button onclick="window.switchPage('services')" class="nav-btn flex flex-col items-center gap-1 active:scale-95 transition-transform text-gray-400 hover:text-blue-600">
-                    <i data-lucide="grid" class="w-6 h-6"></i>
-                    <span class="text-[10px] font-bold">الخدمات</span>
-                </button>
-                
-                <button onclick="window.switchPage('profile')" class="nav-btn flex flex-col items-center gap-1 active:scale-95 transition-transform text-gray-400 hover:text-blue-600">
-                    <i data-lucide="user" class="w-6 h-6"></i>
-                    <span class="text-[10px] font-bold">حسابي</span>
-                </button>
-
+    <div id="splash" class="fixed inset-0 z-[100] bg-midnight-400 flex items-center justify-center">
+        <div class="relative">
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-64 h-64 border border-gold-400/20 rounded-full animate-pulse-ring"></div>
             </div>
-        </nav>
-        
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-48 h-48 border border-gold-400/30 rounded-full animate-pulse-ring" style="animation-delay: 0.3s"></div>
+            </div>
+            <div class="relative z-10 text-center animate-scale-in">
+                <div class="w-24 h-24 mx-auto mb-6 relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-gold-400 to-gold-600 rounded-3xl rotate-45 animate-glow"></div>
+                    <div class="absolute inset-2 bg-midnight-400 rounded-2xl rotate-45 flex items-center justify-center">
+                        <svg class="w-10 h-10 text-gold-400 -rotate-45" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="text-5xl font-black mb-1 text-white tracking-wide">ألك</h1>
+                <p class="text-gold-400 font-bold tracking-[0.4em] mb-2 uppercase text-xs">ALAK</p>
+                <p class="text-white/80 text-sm">تجربة التنقل الفاخرة</p>
+                
+                <div class="mt-8 w-48 h-1 bg-white/10 rounded-full overflow-hidden mx-auto">
+                    <div id="splashProgress" class="h-full bg-gradient-to-r from-gold-400 to-gold-600 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <div id="toastContainer" class="toast-container space-y-2"></div>
+
+    <div id="app" class="min-h-screen mesh-gradient relative opacity-0 transition-opacity duration-500">
+        
+        <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+            <div class="absolute top-20 -right-20 w-96 h-96 bg-gold-400/5 rounded-full blur-3xl animate-morph"></div>
+            <div class="absolute bottom-40 -left-20 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl animate-morph" style="animation-delay: -4s"></div>
+        </div>
+
+        <div class="relative z-10 max-w-md mx-auto min-h-screen pb-32">
+            
+    <header class="bg-white rounded-b-[2rem] px-6 py-4 flex justify-between items-center shadow-[0_4px_25px_rgba(0,0,0,0.03)] relative z-50 mb-4">
+        <button onclick="openNotifications()" class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100 hover:bg-gray-100 transition relative">
+            <i data-lucide="bell" class="w-5 h-5 text-gray-700"></i>
+            <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+        </button>
+
+        <div class="flex flex-col items-center justify-center">
+            <h1 class="text-2xl font-black text-[#0f172a] tracking-wide">ألك</h1>
+            <span class="text-[9px] text-gold-400 font-black tracking-[0.2em] -mt-1 uppercase">ALAK</span>
+        </div>
+
+        <button class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100 hover:bg-gray-100 transition">
+            <i data-lucide="menu" class="w-5 h-5 text-gray-700"></i>
+        </button>
+    </header>
+
+<main class="px-5">
+    <div id="page-home" class="page active"></div>
+    <div id="page-profile" class="page"></div>
+    <div id="page-services" class="page"></div>
+    <div id="page-market" class="page"></div>
+    <div id="page-shop" class="page"></div>
+    <div id="page-login" class="page"></div>
+    <div id="page-settings" class="page"></div>
+    <div id="page-notifications" class="page"></div>
+    <div id="page-support" class="page"></div>
+    <div id="page-trips" class="page"></div>
+    <div id="page-addresses" class="page"></div>
+    <div id="page-favorites" class="page"></div>
+    <div id="page-terms" class="page"></div>
+    <div id="page-about" class="page"></div>
+
+    <div id="page-driver-dashboard" class="page"></div>
+    <div id="page-driver-earnings" class="page"></div>
+    <div id="page-driver-orders" class="page"></div>
+    <div id="page-driver-trips" class="page"></div>
+</main>
+
+<nav class="fixed bottom-0 left-0 right-0 z-40 px-4 pb-4 pt-2">
+    <div class="max-w-md mx-auto glass-strong rounded-3xl px-4 py-3 shadow-2xl relative overflow-hidden">
+        
+        <div id="user-bottom-nav" class="flex items-center justify-around transition-transform duration-500">
+            <button onclick="requireLoginAndSwitch('profile')" class="nav-item flex flex-col items-center gap-1 py-2 px-3" data-page="profile">
+                <div class="nav-icon-wrapper w-10 h-10 rounded-xl flex items-center justify-center transition-all">
+                    <i data-lucide="user" class="w-5 h-5 text-white/80"></i>
+                </div>
+                <span class="nav-label text-[10px] font-bold text-white/80">حسابي</span>
+            </button>
+
+            <button onclick="switchPage('services')" class="nav-item flex flex-col items-center gap-1 py-2 px-3" data-page="services">
+                <div class="nav-icon-wrapper w-10 h-10 rounded-xl flex items-center justify-center transition-all">
+                    <i data-lucide="grid" class="w-5 h-5 text-white/80"></i>
+                </div>
+                <span class="nav-label text-[10px] font-bold text-white/80">الخدمات</span>
+            </button>
+
+            <button onclick="switchPage('home')" class="nav-item active flex flex-col items-center justify-center w-[60px] h-[60px] rounded-[1.25rem] bg-gold-400 text-[#0f172a] -mt-6 shadow-lg shadow-gold-400/30 border-[4px] border-[#f4f7fb] transition-transform" data-page="home">
+                <i data-lucide="home" class="w-6 h-6 mb-1"></i>
+                <span class="text-[9px] font-black">الرئيسية</span>
+            </button>
+
+            <button onclick="switchPage('trips')" class="nav-item flex flex-col items-center gap-1 py-2 px-3" data-page="trips">
+                <div class="nav-icon-wrapper w-10 h-10 rounded-xl flex items-center justify-center transition-all">
+                    <i data-lucide="map" class="w-5 h-5 text-white/80"></i>
+                </div>
+                <span class="nav-label text-[10px] font-bold text-white/80">رحلاتي</span>
+            </button>
+
+            <button onclick="requireLoginAndSwitch('favorites')" class="nav-item flex flex-col items-center gap-1 py-2 px-3" data-page="favorites">
+                <div class="nav-icon-wrapper w-10 h-10 rounded-xl flex items-center justify-center transition-all">
+                    <i data-lucide="star" class="w-5 h-5 text-white/80"></i>
+                </div>
+                <span class="nav-label text-[10px] font-bold text-white/80">المفضلة</span>
+            </button>
+        </div>
+
+        <div id="driver-bottom-nav" class="hidden items-center justify-around transition-transform duration-500">
+            <button onclick="requireLoginAndSwitch('profile')" class="nav-item flex flex-col items-center gap-1 py-2 px-3" data-page="profile">
+                <div class="nav-icon-wrapper w-10 h-10 rounded-xl flex items-center justify-center transition-all">
+                    <i data-lucide="user" class="w-5 h-5 text-white/80"></i>
+                </div>
+                <span class="nav-label text-[10px] font-bold text-white/80">حسابي</span>
+            </button>
+
+            <button onclick="switchPage('driver-earnings')" class="nav-item flex flex-col items-center gap-1 py-2 px-3" data-page="driver-earnings">
+                <div class="nav-icon-wrapper w-10 h-10 rounded-xl flex items-center justify-center transition-all">
+                    <i data-lucide="wallet" class="w-5 h-5 text-white/80"></i>
+                </div>
+                <span class="nav-label text-[10px] font-bold text-white/80">الأرباح</span>
+            </button>
+
+            <button onclick="switchPage('driver-dashboard')" class="nav-item active flex flex-col items-center justify-center w-[60px] h-[60px] rounded-[1.25rem] bg-blue-500 text-white -mt-6 shadow-lg shadow-blue-500/30 border-[4px] border-[#f4f7fb] transition-transform" data-page="driver-dashboard">
+                <i data-lucide="car" class="w-6 h-6 mb-1"></i>
+                <span class="text-[9px] font-black">الرئيسية</span>
+            </button>
+
+            <button onclick="switchPage('driver-orders')" class="nav-item flex flex-col items-center gap-1 py-2 px-3" data-page="driver-orders">
+                <div class="nav-icon-wrapper w-10 h-10 rounded-xl flex items-center justify-center transition-all">
+                    <i data-lucide="list-ordered" class="w-5 h-5 text-white/80"></i>
+                </div>
+                <span class="nav-label text-[10px] font-bold text-white/80">الطلبات</span>
+            </button>
+
+            <button onclick="switchPage('driver-trips')" class="nav-item flex flex-col items-center gap-1 py-2 px-3" data-page="driver-trips">
+                <div class="nav-icon-wrapper w-10 h-10 rounded-xl flex items-center justify-center transition-all">
+                    <i data-lucide="history" class="w-5 h-5 text-white/80"></i>
+                </div>
+                <span class="nav-label text-[10px] font-bold text-white/80">سجلي</span>
+            </button>
+        </div>
+
+    </div>
+</nav>
+
+        <div id="menuOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden transition-opacity" onclick="toggleMenu()"></div>
+        <div id="menuDrawer" class="fixed top-0 right-0 h-full w-80 glass-strong shadow-2xl z-50 transition-transform duration-500 translate-x-full flex flex-col">
+            <div class="p-6 bg-gradient-to-br from-gold-400/20 to-transparent border-b border-white/10">
+                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-2xl font-black text-midnight-400 mb-4 shadow-lg shadow-gold-400/30" id="drawer-user-initial">؟</div>
+                <h3 class="font-bold text-xl mb-1 text-white" id="drawer-user-name">زائر</h3>
+                <p class="text-sm text-white/80 font-semibold mb-3" id="drawer-user-phone">يرجى تسجيل الدخول</p>
+            </div>
+            <nav class="p-4 space-y-1 flex-1 overflow-y-auto no-scrollbar">
+                <a href="#" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition text-white" onclick="showToast('التسجيل قيد البرمجة'); toggleMenu()">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                    </div>
+                    <span class="font-bold flex-1">تسجيل الدخول</span>
+                </a>
+            </nav>
+        </div>
+
+        <div id="mapPickerModal" class="fixed inset-0 z-50 hidden">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
+            <div class="relative w-full h-full flex flex-col">
+                <div class="glass-strong px-5 pt-6 pb-4 z-20 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <button onclick="closeMapPicker()" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center transition hover:bg-white/20">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                        <h3 class="font-bold text-lg text-white" id="mapPickerTitle">تحديد الموقع</h3>
+                        <button onclick="getCurrentLocation()" class="text-xs text-gold-400 font-bold bg-gold-400/10 px-3 py-1.5 rounded-lg">موقعي</button>
+                    </div>
+                    
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="ابحث عن سوق، جامع، مستشفى..." class="w-full glass rounded-2xl px-4 py-3 pr-12 text-sm input-gold outline-none transition text-white placeholder-white/50 font-semibold" oninput="handleSearch(this.value)">
+                        <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <button id="clearSearch" onclick="clearSearch()" class="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hidden hover:bg-white/20">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+
+                    <div id="searchResults" class="mt-3 max-h-48 overflow-y-auto no-scrollbar hidden"></div>
+                </div>
+
+                <div class="flex-1 relative">
+                    <div id="map" class="w-full h-full"></div>
+                    
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[1000] w-12 h-16 flex flex-col items-center justify-end" id="centerPinContainer">
+                        <div id="centerPin" class="relative">
+                            <div class="w-10 h-10 bg-gold-400 rounded-full border-[3px] border-white shadow-lg flex items-center justify-center">
+                                <div class="w-2.5 h-2.5 bg-midnight-600 rounded-full"></div>
+                            </div>
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 w-1 h-5 bg-midnight-600 rounded-b-full"></div>
+                        </div>
+                        <div id="centerPinShadow" class="absolute bottom-0 w-4 h-1.5 bg-black/40 rounded-full blur-[2px]"></div>
+                    </div>
+
+                    <div id="selectedLocationInfo" class="absolute bottom-4 left-4 right-4 z-[1000] hidden animate-slide-up">
+                        <div class="glass-strong rounded-2xl p-4 shadow-2xl border border-gold-400/30">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gold-400/20 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-gold-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-bold text-sm truncate text-white" id="selectedLocationName">الموقع المحدد</p>
+                                    <p class="text-xs text-white/80 truncate font-semibold mt-0.5" id="selectedLocationAddress">جاري التحميل...</p>
+                                </div>
+                                <button onclick="confirmSelection()" class="btn-glow px-4 py-2 rounded-xl text-sm font-bold text-midnight-400 whitespace-nowrap shadow-lg">
+                                    تأكيد
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bookingModal" class="fixed inset-0 z-50 hidden items-end justify-center">
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
+            <div class="relative w-full max-w-md glass-strong rounded-t-3xl transform transition-transform duration-500 translate-y-full" id="bookingSheet">
+                <div class="p-6">
+                    <div class="sheet-handle mb-6"></div>
+                    <h3 class="text-2xl font-black mb-6 text-white">تأكيد <span class="text-gold-gradient">الطلب</span></h3>
+                    <div class="space-y-3 mb-6">
+                        <div class="glass rounded-2xl p-4 flex items-center gap-3 border border-white/5">
+                            <div class="w-10 h-10 rounded-xl bg-gold-400/20 flex items-center justify-center flex-shrink-0">
+                                <div class="w-3 h-3 bg-gold-400 rounded-full"></div>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[10px] text-white/80 font-semibold">من</p>
+                                <p id="modalFrom" class="font-bold text-sm text-white">الموقع الحالي</p>
+                            </div>
+                        </div>
+                        <div class="glass rounded-2xl p-4 flex items-center gap-3 border border-white/5">
+                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-gold-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[10px] text-white/80 font-semibold">إلى</p>
+                                <p id="modalTo" class="font-bold text-sm text-white">الوجهة المطلوبة</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-gold rounded-2xl p-4 mb-6 shadow-inner">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-10 h-10 text-gold-400" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
+                                <div>
+                                    <p class="font-bold text-white" id="modalCarType">تكسي</p>
+                                    <p class="text-xs text-white/80 font-semibold">تأكيد التكلفة</p>
+                                </div>
+                            </div>
+                            <p class="text-2xl font-black text-gold-400" id="modalPrice">-- <span class="text-xs font-bold text-white/80">د.ع</span></p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="confirmBooking()" class="flex-1 btn-glow rounded-2xl py-4 font-bold text-midnight-400 ripple shadow-lg">تأكيد وانطلاق</button>
+                        <button onclick="closeModal()" class="px-6 glass rounded-2xl py-4 font-bold text-white hover:bg-white/10 transition border border-white/10">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="searchingModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
+            <div class="relative text-center p-8">
+                <div class="relative w-32 h-32 mx-auto mb-6">
+                    <div class="absolute inset-0 border-4 border-gold-400/20 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-gold-400 rounded-full border-t-transparent animate-spin-slow"></div>
+                    <div class="absolute inset-4 border-4 border-gold-400/40 rounded-full border-b-transparent animate-spin-slow" style="animation-direction: reverse; animation-duration: 1.5s"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <svg class="w-12 h-12 text-gold-400 animate-bounce-soft" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-black mb-2 text-white">جاري البحث عن <span class="text-gold-gradient">كابتن</span>...</h3>
+                <p class="text-white/80 font-semibold mb-6">يرجى الانتظار، نحن نربطك بأقرب سيارة</p>
+                <div class="w-64 h-1 bg-white/10 rounded-full overflow-hidden mx-auto">
+                    <div id="searchProgress" class="h-full bg-gradient-to-r from-gold-400 to-gold-600 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="driverModal" class="fixed inset-0 z-50 hidden items-end justify-center">
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeDriverModal()"></div>
+            <div class="relative w-full max-w-md glass-strong rounded-t-3xl transform transition-transform duration-500 translate-y-full" id="driverSheet">
+                <div class="p-6">
+                    <div class="sheet-handle mb-6"></div>
+                    <div class="text-center mb-6">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-400/30 animate-scale-in">
+                            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        </div>
+                        <h3 class="text-2xl font-black text-emerald-400">الكابتن في الطريق إليك!</h3>
+                    </div>
+                    <div class="glass rounded-2xl p-4 mb-4 border border-white/5" id="db-driver-info">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-xl font-black text-midnight-400" id="db-driver-initial">؟</div>
+                            <div class="flex-1">
+                                <p class="font-bold text-lg text-white" id="db-driver-name">جاري الربط...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="closeDriverModal(); showToast('تم إنهاء الطلب', 'error')" class="w-full glass rounded-2xl py-4 font-bold text-white hover:bg-white/10 transition border border-white/20">العودة للرئيسية</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+        <div id="subscriptionModal" class="fixed inset-0 z-50 hidden items-end justify-center">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeSubscriptionModal()"></div>
+            <div class="relative w-full max-w-md glass-strong rounded-t-3xl transform transition-transform duration-500 translate-y-full" id="subscriptionSheet">
+                <div class="p-6">
+                    <div class="sheet-handle mb-4"></div>
+                    <div class="text-center mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-br from-gold-400 to-gold-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(245,184,0,0.3)] rotate-12">
+                            <i data-lucide="rocket" class="w-10 h-10 text-midnight-600 -rotate-12"></i>
+                        </div>
+                        <h3 class="text-2xl font-black text-white mb-2">ارفع مبيعاتك للقمة!</h3>
+                        <p class="text-white/70 text-sm font-semibold">استثمر بمحلك وخليك الخيار الأول لأهل الطارمية.</p>
+                    </div>
+
+                    <div class="space-y-3 mb-6">
+                        <div class="glass rounded-2xl p-3 flex items-center gap-3 border border-emerald-500/30">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
+                                <i data-lucide="trending-up" class="w-5 h-5 text-emerald-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-sm text-white">وصول مباشر لآلاف الزبائن</p>
+                                <p class="text-[10px] text-white/50">بدل ما تنتظر الزبون، إحنا نجيبه لموبايلك.</p>
+                            </div>
+                        </div>
+                        <div class="glass rounded-2xl p-3 flex items-center gap-3 border border-gold-400/30">
+                            <div class="w-10 h-10 rounded-xl bg-gold-400/20 flex items-center justify-center shrink-0">
+                                <i data-lucide="store" class="w-5 h-5 text-gold-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-sm text-white">واجهة متجر احترافية بالكامل</p>
+                                <p class="text-[10px] text-white/50">شعارك، صورك، ومنتجاتك بأرقى تصميم.</p>
+                            </div>
+                        </div>
+                        <div class="glass rounded-2xl p-3 flex items-center gap-3 border border-blue-500/30">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
+                                <i data-lucide="message-circle" class="w-5 h-5 text-blue-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-sm text-white">استلام طلبات بدون عمولة</p>
+                                <p class="text-[10px] text-white/50">تستلم طلباتك مباشرة على الواتساب الخاص بيك.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-gold rounded-2xl p-4 mb-6 text-center shadow-inner">
+                        <p class="text-xs text-white/80 font-bold mb-1">استثمارك الشهري فقط</p>
+                        <p class="text-3xl font-black text-gold-400">15,000 <span class="text-sm text-white/80">د.ع</span></p>
+                        <p class="text-[10px] text-white/60 mt-1">أقل من سعر وجبة غداء!</p>
+                    </div>
+
+                    <button onclick="showToast('سيتم توجيهك لفريق المبيعات'); closeSubscriptionModal()" class="w-full btn-glow rounded-2xl py-4 font-bold text-midnight-600 ripple shadow-lg mb-3 flex items-center justify-center gap-2">
+                        <i data-lucide="zap" class="w-5 h-5"></i>
+                        اشترك الآن (واحصل على شهر مجاني)
+                    </button>
+                    <button onclick="closeSubscriptionModal()" class="w-full glass rounded-2xl py-3 font-bold text-white/60 hover:bg-white/10 transition border border-transparent">
+                        ليس الآن، سأفوت الفرصة
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="cartModal" class="fixed inset-0 z-50 hidden items-end justify-center">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeCart()"></div>
+            <div class="relative w-full max-w-md glass-strong rounded-t-3xl transform transition-transform duration-500 translate-y-full flex flex-col max-h-[85vh]" id="cartSheet">
+                <div class="p-5 border-b border-white/10 flex justify-between items-center shrink-0">
+                    <h3 class="text-xl font-black text-white flex items-center gap-2">
+                        <div class="w-10 h-10 rounded-xl bg-gold-400/20 flex items-center justify-center">
+                            <i data-lucide="shopping-bag" class="w-5 h-5 text-gold-400"></i>
+                        </div>
+                        سلة الطلبات
+                    </h3>
+                    <button onclick="closeCart()" class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                
+                <div class="p-5 overflow-y-auto no-scrollbar flex-1" id="cartItemsContainer">
+                </div>
+                
+                <div class="p-5 border-t border-white/10 shrink-0 bg-midnight-600/80 rounded-t-3xl backdrop-blur-md">
+                    <div class="flex justify-between items-center mb-4 px-2">
+                        <span class="text-white/80 font-bold text-sm">المجموع الكلي:</span>
+                        <span class="text-2xl font-black text-gold-400" id="cartTotal">0 <span class="text-xs text-white/60">د.ع</span></span>
+                    </div>
+                    <button onclick="checkoutWhatsApp()" class="w-full btn-glow rounded-2xl py-4 font-bold text-midnight-600 flex items-center justify-center gap-2 ripple shadow-lg">
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                        إرسال الطلب عبر واتساب
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="authModal" class="fixed inset-0 z-[100] bg-[#060F1D] hidden flex-col transition-opacity duration-300">
+            
+            <div id="loginView" class="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar relative w-full">
+                <div class="h-72 relative shrink-0">
+                    <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="City Night">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#060F1D] via-[#060F1D]/80 to-transparent"></div>
+                    
+                    <div class="absolute top-0 left-0 right-0 p-5 flex justify-between items-center z-10 pt-8">
+                        <div class="text-white font-bold text-sm">تسجيل الدخول</div>
+                        <button onclick="closeAuthModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition">
+                            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+
+                    <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pt-10">
+                        <h1 class="text-3xl font-black text-white"><span class="text-gold-400">ألك</span></h1>
+                        <p class="text-[10px] text-white/80 tracking-widest mt-1 uppercase">ALAK</p>
+                    </div>
+                </div>
+
+                <div class="flex-1 bg-[#060F1D] rounded-t-3xl relative z-20 px-6 pb-6 flex flex-col -mt-10">
+                    <div class="w-16 h-16 bg-gold-400 rounded-full flex items-center justify-center mx-auto -mt-8 mb-4 border-4 border-[#060F1D] shadow-lg shadow-gold-400/20">
+                        <i data-lucide="user" class="w-8 h-8 text-[#060F1D]"></i>
+                    </div>
+
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-black text-white mb-1">أهلاً بك في <span class="text-gold-400">ألك</span></h3>
+                        <p class="text-white/50 text-sm font-semibold">سجل دخولك لتجربة أسرع وأفضل</p>
+                    </div>
+
+                    <div class="space-y-4 mb-4">
+                        <div class="relative">
+                            <i data-lucide="phone" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40"></i>
+                            <input type="tel" id="loginPhone" placeholder="رقم الهاتف" class="w-full bg-[#0A1628] rounded-2xl px-5 py-4 pr-12 text-sm outline-none text-white placeholder-white/40 focus:border-gold-400 border border-white/5 transition-all text-right shadow-inner" dir="rtl">
+                        </div>
+                        <div class="relative">
+                            <i data-lucide="lock" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40"></i>
+                            <input type="password" id="loginPassword" placeholder="كلمة المرور" class="w-full bg-[#0A1628] rounded-2xl px-5 py-4 pr-12 pl-12 text-sm outline-none text-white placeholder-white/40 focus:border-gold-400 border border-white/5 transition-all text-right shadow-inner" dir="rtl">
+                            <button onclick="togglePassword('loginPassword')" class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white">
+                                <i data-lucide="eye-off" class="w-5 h-5" id="loginPasswordIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-8 px-1">
+                        <a href="#" class="text-xs font-bold text-gold-400 hover:underline">نسيت كلمة المرور؟</a>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <span class="text-xs text-white/60 font-semibold">تذكرني</span>
+                            <div class="w-4 h-4 rounded border border-white/20 bg-[#0A1628] flex items-center justify-center">
+                                <i data-lucide="check" class="w-3 h-3 text-transparent"></i>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button onclick="processLogin()" class="w-full bg-gold-400 text-[#060F1D] rounded-2xl py-4 font-black flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(245,184,0,0.3)] active:scale-95 transition-transform mb-8">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        تسجيل الدخول
+                    </button>
+
+                    <div class="relative flex items-center justify-center mb-6">
+                        <div class="absolute inset-x-0 h-px bg-white/10"></div>
+                        <span class="relative bg-[#060F1D] px-4 text-xs text-white/40 font-semibold">أو سجل دخولك باستخدام</span>
+                    </div>
+
+                    <div class="flex justify-center gap-4 mb-8">
+                        <button class="w-14 h-14 rounded-2xl bg-[#0A1628] border border-white/5 flex items-center justify-center hover:bg-white/5 transition shadow-lg">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                        </button>
+                        <button class="w-14 h-14 rounded-2xl bg-[#0A1628] border border-white/5 flex items-center justify-center hover:bg-white/5 transition shadow-lg">
+                            <svg class="w-6 h-6 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </button>
+                        <button class="w-14 h-14 rounded-2xl bg-[#0A1628] border border-white/5 flex items-center justify-center hover:bg-white/5 transition shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.15 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.85 2.01-1.74 3.42-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                        </button>
+                    </div>
+
+                    <p class="text-center text-xs text-white/60 mb-8">
+                        ليس لديك حساب؟ <button onclick="toggleAuthView('register')" class="text-gold-400 font-bold hover:underline">إنشاء حساب جديد</button>
+                    </p>
+
+                    <div class="grid grid-cols-4 gap-2 mt-auto pt-4 border-t border-white/5">
+                        <div class="flex flex-col items-center text-center gap-1">
+                            <i data-lucide="star" class="w-5 h-5 text-white/40"></i>
+                            <span class="text-[9px] text-white/60 font-semibold leading-tight">تقييم عالي<br>من المستخدمين</span>
+                        </div>
+                        <div class="flex flex-col items-center text-center gap-1">
+                            <i data-lucide="zap" class="w-5 h-5 text-white/40"></i>
+                            <span class="text-[9px] text-white/60 font-semibold leading-tight">أسرع خدمة<br>في الطارمية</span>
+                        </div>
+                        <div class="flex flex-col items-center text-center gap-1">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-white/40"></i>
+                            <span class="text-[9px] text-white/60 font-semibold leading-tight">آمن وموثوق<br>حماية بياناتك</span>
+                        </div>
+                        <div class="flex flex-col items-center text-center gap-1">
+                            <i data-lucide="headphones" class="w-5 h-5 text-white/40"></i>
+                            <span class="text-[9px] text-white/60 font-semibold leading-tight">دعم فني<br>على مدار الساعة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="registerView" class="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar relative w-full hidden">
+                <div class="p-5 pt-8 flex justify-between items-center shrink-0">
+                    <div class="text-white font-bold text-sm">إنشاء حساب جديد</div>
+                    <button onclick="toggleAuthView('login')" class="w-8 h-8 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition">
+                        <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <div class="px-6 pb-8 flex-1">
+                    <div class="w-20 h-20 bg-gold-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-gold-400/20">
+                        <i data-lucide="user-plus" class="w-8 h-8 text-[#060F1D]"></i>
+                    </div>
+
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-black text-white mb-1">إنشاء حساب جديد</h3>
+                        <p class="text-white/50 text-sm font-semibold">انضم إلى ألك واستمتع بالخدمات</p>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="relative">
+                            <i data-lucide="user" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40"></i>
+                            <input type="text" id="regName" placeholder="الاسم الكامل" class="w-full bg-[#0A1628] rounded-2xl px-5 py-4 pr-12 text-sm outline-none text-white placeholder-white/40 focus:border-gold-400 border border-white/5 transition-all text-right shadow-inner" dir="rtl">
+                        </div>
+                        <div class="relative">
+                            <i data-lucide="phone" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40"></i>
+                            <input type="tel" id="regPhone" placeholder="رقم الهاتف" class="w-full bg-[#0A1628] rounded-2xl px-5 py-4 pr-12 text-sm outline-none text-white placeholder-white/40 focus:border-gold-400 border border-white/5 transition-all text-right shadow-inner" dir="rtl">
+                        </div>
+                        <div class="relative">
+                            <i data-lucide="shield" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40"></i>
+                            <input type="text" placeholder="رمز التحقق" class="w-full bg-[#0A1628] rounded-2xl px-5 py-4 pr-12 pl-32 text-sm outline-none text-white placeholder-white/40 focus:border-gold-400 border border-white/5 transition-all text-right shadow-inner" dir="rtl">
+                            <button class="absolute left-2 top-1/2 -translate-y-1/2 text-xs font-bold text-gold-400 bg-gold-400/10 px-3 py-2 rounded-xl">إرسال رمز التحقق</button>
+                        </div>
+                        <div class="relative">
+                            <i data-lucide="lock" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40"></i>
+                            <input type="password" id="regPassword" placeholder="كلمة المرور" class="w-full bg-[#0A1628] rounded-2xl px-5 py-4 pr-12 pl-12 text-sm outline-none text-white placeholder-white/40 focus:border-gold-400 border border-white/5 transition-all text-right shadow-inner" dir="rtl">
+                            <button onclick="togglePassword('regPassword')" class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white">
+                                <i data-lucide="eye-off" class="w-5 h-5" id="regPasswordIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <label class="flex items-center gap-3 cursor-pointer mb-8">
+                        <div class="w-5 h-5 rounded border border-gold-400 bg-gold-400/20 flex items-center justify-center shrink-0">
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-gold-400"></i>
+                        </div>
+                        <span class="text-xs text-white/60 font-semibold">أوافق على <a href="#" class="text-gold-400 hover:underline">الشروط والأحكام</a> وسياسة الخصوصية</span>
+                    </label>
+
+                    <button onclick="processRegister()" class="w-full bg-gold-400 text-[#060F1D] rounded-2xl py-4 font-black flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(245,184,0,0.3)] active:scale-95 transition-transform mb-8">
+                        <i data-lucide="user-plus" class="w-5 h-5"></i>
+                        إنشاء حساب
+                    </button>
+
+                    <div class="relative flex items-center justify-center mb-6">
+                        <div class="absolute inset-x-0 h-px bg-white/10"></div>
+                        <span class="relative bg-[#060F1D] px-4 text-xs text-white/40 font-semibold">أو إنشاء حساب باستخدام</span>
+                    </div>
+
+                    <div class="flex justify-center gap-4 mb-8">
+                        <button class="w-14 h-14 rounded-2xl bg-[#0A1628] border border-white/5 flex items-center justify-center hover:bg-white/5 transition shadow-lg">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                        </button>
+                        <button class="w-14 h-14 rounded-2xl bg-[#0A1628] border border-white/5 flex items-center justify-center hover:bg-white/5 transition shadow-lg">
+                            <svg class="w-6 h-6 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </button>
+                        <button class="w-14 h-14 rounded-2xl bg-[#0A1628] border border-white/5 flex items-center justify-center hover:bg-white/5 transition shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.15 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.85 2.01-1.74 3.42-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                        </button>
+                    </div>
+
+                    <p class="text-center text-xs text-white/60">
+                        لديك حساب بالفعل؟ <button onclick="toggleAuthView('login')" class="text-gold-400 font-bold hover:underline">تسجيل الدخول</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div id="roleSelectionModal" class="fixed inset-0 z-[110] hidden items-end justify-center">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeRoleSelection()"></div>
+            <div class="relative w-full max-w-md glass-strong rounded-t-3xl transform transition-transform duration-500 translate-y-full" id="roleSelectionSheet">
+                <div class="p-6">
+                    <div class="sheet-handle mb-6"></div>
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-gradient-to-br from-gold-400 to-gold-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(245,184,0,0.3)] rotate-12 animate-pulse-soft">
+                            <i data-lucide="users" class="w-8 h-8 text-[#060F1D] -rotate-12"></i>
+                        </div>
+                        <h3 class="text-2xl font-black text-white mb-2">كيف تستخدم ألك؟</h3>
+                        <p class="text-white/60 text-sm font-semibold">اختر نوع حسابك لتخصيص تجربتك بالكامل</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3 mb-6">
+                        <button onclick="confirmRoleSelection('user')" class="w-full bg-[#0A1628] rounded-2xl p-4 flex items-center justify-between border border-white/5 hover:border-gold-400/50 transition group shadow-lg">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gold-400/10 flex items-center justify-center group-hover:bg-gold-400/20 transition">
+                                    <i data-lucide="user" class="w-6 h-6 text-gold-400"></i>
+                                </div>
+                                <div class="text-right">
+                                    <h4 class="font-bold text-white text-sm">مستخدم (زبون)</h4>
+                                    <p class="text-[10px] text-white/50 font-semibold">لطلب التكسي وتصفح المتاجر</p>
+                                </div>
+                            </div>
+                            <i data-lucide="chevron-left" class="w-5 h-5 text-white/20 group-hover:text-gold-400 transition"></i>
+                        </button>
+
+                        <button onclick="confirmRoleSelection('driver')" class="w-full bg-[#0A1628] rounded-2xl p-4 flex items-center justify-between border border-white/5 hover:border-blue-400/50 transition group shadow-lg">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-blue-400/10 flex items-center justify-center group-hover:bg-blue-400/20 transition">
+                                    <i data-lucide="car" class="w-6 h-6 text-blue-400"></i>
+                                </div>
+                                <div class="text-right">
+                                    <h4 class="font-bold text-white text-sm">كابتن (سائق)</h4>
+                                    <p class="text-[10px] text-white/50 font-semibold">لاستقبال طلبات التوصيل والعمل</p>
+                                </div>
+                            </div>
+                            <i data-lucide="chevron-left" class="w-5 h-5 text-white/20 group-hover:text-blue-400 transition"></i>
+                        </button>
+
+                        <button onclick="showToast('حسابات المتاجر غير متاحة حالياً، انتظرونا قريباً! 🛍️')" class="w-full bg-[#0A1628] rounded-2xl p-4 flex items-center justify-between border border-white/5 transition group shadow-lg opacity-60">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center transition">
+                                    <i data-lucide="store" class="w-6 h-6 text-white/40"></i>
+                                </div>
+                                <div class="text-right">
+                                    <h4 class="font-bold text-white/60 text-sm">صاحب متجر (قريباً)</h4>
+                                    <p class="text-[10px] text-white/40 font-semibold">لإدارة مطعمك واستقبال الطلبات</p>
+                                </div>
+                            </div>
+                            <i data-lucide="lock" class="w-5 h-5 text-white/20"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div id="kycModal" class="fixed inset-0 z-[110] hidden items-end justify-center">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeKYCModal()"></div>
+        <div class="relative w-full max-w-md glass-strong rounded-t-3xl transform transition-transform duration-500 translate-y-full" id="kycSheet">
+            <div class="p-6">
+                <div class="sheet-handle mb-6"></div>
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="file-check-2" class="w-8 h-8 text-blue-500"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-white mb-2">طلب انضمام ككابتن</h3>
+                    <p class="text-white/60 text-sm font-semibold">يرجى رفع المستندات المطلوبة لتفعيل حسابك</p>
+                </div>
+
+                <div class="space-y-4 mb-6">
+                    <label class="flex items-center justify-between p-4 bg-[#0A1628] border border-white/10 rounded-2xl cursor-pointer hover:border-blue-500/50 transition">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="id-card" class="w-6 h-6 text-white/50"></i>
+                            <div>
+                                <h4 class="font-bold text-white text-sm">إجازة السوق</h4>
+                                <p class="text-[10px] text-white/50">صورة واضحة للوجهين</p>
+                            </div>
+                        </div>
+                        <div class="text-xs font-bold bg-white/10 text-white px-3 py-1.5 rounded-lg">إرفاق صورة</div>
+                    </label>
+
+                    <label class="flex items-center justify-between p-4 bg-[#0A1628] border border-white/10 rounded-2xl cursor-pointer hover:border-blue-500/50 transition">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="car" class="w-6 h-6 text-white/50"></i>
+                            <div>
+                                <h4 class="font-bold text-white text-sm">سنوية السيارة</h4>
+                                <p class="text-[10px] text-white/50">باسمك أو وكالة رسمية</p>
+                            </div>
+                        </div>
+                        <div class="text-xs font-bold bg-white/10 text-white px-3 py-1.5 rounded-lg">إرفاق صورة</div>
+                    </label>
+                </div>
+
+                <button onclick="submitDriverApplication()" class="w-full bg-blue-500 text-white rounded-2xl py-4 font-black flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 active:scale-95 transition-transform">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                    إرسال الطلب للمراجعة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js" defer></script>
 </body>
 </html>
