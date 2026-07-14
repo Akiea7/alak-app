@@ -1,78 +1,61 @@
 // js/features/searchController.js
-// هذا الملف مسؤول عن تفعيل بحث جوجل للأماكن (Autocomplete) وإدارة اختيار الوجهة
-
 import { AppState } from '../core/appState.js';
-import { Booking } from './booking.js';
-import { UI } from '../ui.js';
-import { Helpers } from '../utils/helpers.js';
+import { MapController } from './mapController.js';
 
 export const SearchController = {
-    setupDestinationSearch() {
-        const destBtn = document.getElementById('destBtn');
-        if (!destBtn) return;
+    handleSearch(query) {
+        const clearBtn = document.getElementById('clearSearch');
+        const resultsDiv = document.getElementById('searchResults');
+        if (query.length > 0) { clearBtn.classList.remove('hidden'); } 
+        else { clearBtn.classList.add('hidden'); resultsDiv.classList.add('hidden'); return; }
 
-        // عندما يضغط الزبون على زر "الوجهة"، ننشئ حقل بحث ديناميكي
-        destBtn.addEventListener('click', () => {
-            const searchInput = document.createElement('input');
-            searchInput.type = 'text';
-            searchInput.placeholder = 'اكتب وجهتك هنا (مثال: المنصور)...';
-            // تنسيق الحقل ليتناسب مع تصميمك
-            searchInput.className = 'w-full mt-2 p-3 bg-white border border-emerald-200 rounded-lg text-sm font-bold text-gray-800 outline-none focus:border-emerald-500 shadow-sm transition-colors';
-            
-            const textContainer = destBtn.querySelector('.flex-1');
-            // حفظ المحتوى القديم للرجوع إليه
-            const originalHTML = textContainer.innerHTML;
-            
-            // استبدال النص بالحقل الجديد
-            textContainer.innerHTML = ''; 
-            textContainer.appendChild(searchInput);
-            
-            // التركيز التلقائي على الحقل
-            setTimeout(() => searchInput.focus(), 50);
+        clearTimeout(AppState.searchTimeout);
+        AppState.searchTimeout = setTimeout(() => {
+            if (!query) return;
+            const request = {
+                input: query, componentRestrictions: { country: 'iq' },
+                locationBias: { radius: 10000, center: AppState.currentLocation }
+            };
+            AppState.autocompleteService.getPlacePredictions(request, (predictions, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+                    resultsDiv.innerHTML = predictions.map(place => `
+                        <div class="search-result glass rounded-xl p-3 mb-2 cursor-pointer border border-white/5" onclick="selectSearchResult('${place.place_id}', '${place.structured_formatting?.main_text || place.description.replace(/'/g, "\\'")}')">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gold-400/20 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-gold-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-bold text-sm truncate text-white">${place.structured_formatting?.main_text || place.description}</p>
+                                    <p class="text-xs text-white/60 truncate font-semibold">${place.structured_formatting?.secondary_text || ''}</p>
+                                </div>
+                            </div>
+                        </div>`).join('');
+                    resultsDiv.classList.remove('hidden');
+                } else {
+                    resultsDiv.innerHTML = '<div class="text-center text-white/60 text-sm py-4 font-semibold">لا توجد نتائج مطابقة</div>';
+                    resultsDiv.classList.remove('hidden');
+                }
+            });
+        }, 600);
+    },
 
-            // تفعيل ميزة الإكمال التلقائي من خرائط جوجل
-            if (typeof google !== 'undefined' && google.maps && google.maps.places) {
-                const autocomplete = new google.maps.places.Autocomplete(searchInput, {
-                    componentRestrictions: { country: 'iq' }, // حصر البحث بالعراق
-                    fields: ['geometry', 'name', 'formatted_address']
-                });
+    selectSearchResult(placeId, name) {
+        document.getElementById('searchResults').classList.add('hidden');
+        document.getElementById('searchInput').value = '';
+        document.getElementById('clearSearch').classList.add('hidden');
 
-                autocomplete.addListener('place_changed', () => {
-                    const place = autocomplete.getPlace();
-                    if (!place.geometry) {
-                        Helpers.showToast('عذراً، يرجى اختيار موقع من القائمة المقترحة', 'error');
-                        return;
-                    }
-
-                    const lat = place.geometry.location.lat();
-                    const lng = place.geometry.location.lng();
-
-                    // حفظ الوجهة في حالة التطبيق (AppState)
-                    Booking.setDestinationLocation(lat, lng, place.name, place.formatted_address);
-
-                    // إعادة ترتيب الواجهة وعرض اسم الوجهة المحددة
-                    textContainer.innerHTML = `
-                        <p class="text-xs text-emerald-600 mb-1 font-bold">تم تحديد الوجهة</p>
-                        <p id="destText" class="font-bold text-gray-800 text-sm truncate">${place.name}</p>
-                    `;
-
-                    // حساب المسافة بخط مستقيم (مؤقتاً لحين ربط خدمة مسارات جوجل Directions)
-                    const estimatedDistanceInKm = 10; // قيمة افتراضية للاختبار
-                    Booking.calculateTripDetails(estimatedDistanceInKm, '20 دقيقة');
-
-                    // إظهار زر التأكيد مع السعر المستخلص من التسعيرة
-                    const confirmBtn = document.getElementById('confirmRideBtn');
-                    const priceEstimate = document.getElementById('priceEstimate');
-                    
-                    if (confirmBtn && priceEstimate) {
-                        UI.toggleVisibility(confirmBtn, true);
-                        priceEstimate.textContent = `${Helpers.formatCurrency(AppState.trip.price)} د.ع`;
-                    }
-                });
-            } else {
-                Helpers.showToast('خدمة الخرائط غير متوفرة حالياً', 'error');
-                textContainer.innerHTML = originalHTML; // إرجاع النص إذا فشل التحميل
+        AppState.placesService.getDetails({ placeId: placeId, fields: ['geometry', 'name', 'formatted_address'] }, (place, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && place.geometry && place.geometry.location) {
+                AppState.map.panTo(place.geometry.location);
+                AppState.map.setZoom(16);
+                MapController.reverseGeocode(place.geometry.location.lat(), place.geometry.location.lng());
             }
         });
+    },
+
+    clearSearch() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('searchResults').classList.add('hidden');
+        document.getElementById('clearSearch').classList.add('hidden');
     }
 };
