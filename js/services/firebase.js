@@ -1,34 +1,21 @@
 // js/services/firebase.js
-// هذا الملف مسؤول عن تهيئة الفايربيس والمصادقة وقاعدة البيانات
+// هذا الملف مهيأ لربط التطبيق بـ Firebase مستقبلاً (للمصادقة وقواعد البيانات)
 
-import { CONFIG } from '../core/config.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getAuth } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+export const FirebaseService = {
+    // إعدادات فايربيس توضع هنا لاحقاً
+    config: {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+    },
 
-// ملاحظة: سنقوم لاحقاً بنقل هذه المفاتيح إلى ملف config.js بعد إنشاء المشروع في منصة Firebase
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
+    init() {
+        console.log('Firebase Service Placeholder Initialized');
+        // firebase.initializeApp(this.config);
+    },
 
-let app, auth, db;
-
-// تهيئة الفايربيس فقط إذا كان مفعلاً في الإعدادات
-try {
-    if (CONFIG.FIREBASE_ENABLED) {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-        console.log('✅ تم تهيئة Firebase بنجاح');
+    async sendRealOTP(phoneNumber) {
+        // سيتم وضع منطق إرسال الرمز الحقيقي هنا لاحقاً
+        console.log(`Sending real OTP to ${phoneNumber}`);
     }
-} catch (error) {
-    console.error('❌ حدث خطأ أثناء تهيئة Firebase:', error);
-}
-
-// تصدير الخدمات حتى نستخدمها بملفات تسجيل الدخول والحجز
-export { app, auth, db };
+};
