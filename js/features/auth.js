@@ -1,52 +1,67 @@
 // js/features/auth.js
-// هذا الملف مسؤول عن تسجيل الدخول، إنشاء الحساب، والتحقق من الصلاحيات
-
-import { auth, db } from '../services/firebase.js';
-import { AppState } from '../core/appState.js';
+import { showToast } from '../utils/helpers.js';
+import { Storage } from '../core/storage.js';
 
 export const Auth = {
-    // 1. مراقبة حالة المستخدم (هل هو مسجل دخول أم لا؟)
-    monitorAuthState(onStateChangeCallback) {
-        // نتأكد أن الفايربيس يعمل
-        if (!auth) {
-            console.warn('المصادقة غير مفعلة حالياً.');
-            return;
-        }
+    sendOTP() {
+        const phoneInput = document.getElementById('phoneNumber').value;
+        if(phoneInput.length < 10) { showToast('يرجى إدخال رقم هاتف صحيح', 'error'); return; }
+        
+        document.getElementById('displayPhone').innerText = "+964 " + phoneInput;
+        document.getElementById('phoneStep').classList.add('hidden');
+        document.getElementById('otpStep').classList.remove('hidden');
+        
+        this.setupOTPInputs();
+        showToast('تم إرسال رمز التحقق بنجاح', 'success');
+    },
 
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // المستخدم مسجل دخول
-                AppState.user.isLoggedIn = true;
-                AppState.user.data = {
-                    uid: user.uid,
-                    phone: user.phoneNumber
-                };
-                // مستقبلاً: هنا يتم جلب دور المستخدم (role) من قاعدة البيانات Firestore
-            } else {
-                // المستخدم غير مسجل دخول
-                AppState.user.isLoggedIn = false;
-                AppState.user.data = null;
-                AppState.user.role = 'user'; // افتراضي
-                AppState.user.driverStatus = null;
-            }
-            
-            // إبلاغ الواجهة بتحديث الحالة (بدون تعديل الواجهة مباشرة من هنا)
-            if (typeof onStateChangeCallback === 'function') {
-                onStateChangeCallback(AppState.user);
-            }
+    editPhone() {
+        document.getElementById('otpStep').classList.add('hidden');
+        document.getElementById('phoneStep').classList.remove('hidden');
+    },
+
+    verifyOTP() {
+        const inputs = document.querySelectorAll('.otp-input');
+        let otpCode = '';
+        inputs.forEach(input => otpCode += input.value);
+
+        if(otpCode.length < 6) { showToast('يرجى إدخال الرمز المكون من 6 أرقام', 'error'); return; }
+
+        const phoneInput = document.getElementById('phoneNumber').value;
+        const user = { name: "مستخدم ألك", phone: phoneInput, role: 'pending' };
+        Storage.saveUser(user);
+        showToast('تم تسجيل الدخول بنجاح! مرحباً بك.', 'success');
+        
+        setTimeout(() => {
+            window.switchPage('home');
+            window.openRoleSelection(); 
+        }, 1000);
+    },
+
+    setupOTPInputs() {
+        const inputs = document.querySelectorAll('.otp-input');
+        if(inputs.length === 0) return;
+        inputs[0].focus();
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) { inputs[index + 1].focus(); }
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) { inputs[index - 1].focus(); }
+            });
         });
     },
 
-    // 2. تسجيل الخروج
-    async logout() {
-        try {
-            if (!auth) throw new Error('الخدمة غير متوفرة');
-            
-            await auth.signOut();
-            return { success: true };
-        } catch (error) {
-            console.error('خطأ في تسجيل الخروج:', error);
-            return { success: false, error: error.message };
-        }
+    checkLoginState() { return Storage.getUser(); },
+
+    requireLoginAndSwitch(pageId) {
+        if (!this.checkLoginState()) { window.switchPage('login'); } 
+        else { window.switchPage(pageId); }
+    },
+
+    logoutUser() {
+        Storage.clearUser();
+        showToast('تم تسجيل الخروج بنجاح', 'success');
+        window.switchPage('home');
     }
 };
