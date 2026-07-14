@@ -1,41 +1,40 @@
 // js/core/storage.js
-// هذا الملف مسؤول حصرياً عن التعامل مع الذاكرة المحلية للمتصفح (localStorage)
+// مخصص للتعامل مع الذاكرة المحلية (localStorage) بنفس منطق التطبيق الأصلي
 
 export const Storage = {
-    // 1. حفظ بيانات المستخدم
-    saveUser(userData) {
-        try {
-            localStorage.setItem('alekUser', JSON.stringify(userData));
-            return true;
-        } catch (error) {
-            console.error('خطأ في حفظ بيانات المستخدم:', error);
-            return false;
-        }
-    },
-
-    // 2. جلب بيانات المستخدم
+    // إدارة بيانات المستخدم
     getUser() {
-        try {
-            const userStr = localStorage.getItem('alekUser');
-            return userStr ? JSON.parse(userStr) : null;
-        } catch (error) {
-            console.error('خطأ في قراءة بيانات المستخدم:', error);
-            return null;
-        }
+        const userStr = localStorage.getItem('alekUser');
+        return userStr ? JSON.parse(userStr) : null;
     },
-
-    // 3. مسح بيانات المستخدم (عند تسجيل الخروج)
+    saveUser(userData) {
+        localStorage.setItem('alekUser', JSON.stringify(userData));
+    },
     clearUser() {
         localStorage.removeItem('alekUser');
     },
 
-    // 4. حفظ وضع التطبيق الحالي (كابتن أو زبون)
+    // إدارة وضع التطبيق (كابتن / زبون)
+    getAppMode() {
+        return localStorage.getItem('appMode') || 'user';
+    },
     saveAppMode(mode) {
         localStorage.setItem('appMode', mode);
     },
 
-    // 5. جلب وضع التطبيق الحالي (الافتراضي هو زبون)
-    getAppMode() {
-        return localStorage.getItem('appMode') || 'user';
+    // إدارة المظهر (فاتح / داكن)
+    getTheme() {
+        return localStorage.getItem('alakTheme') || 'dark';
+    },
+    saveTheme(theme) {
+        localStorage.setItem('alakTheme', theme);
+    },
+
+    // إدارة إشعارات السلة
+    getCartHintShown() {
+        return localStorage.getItem('cartDragHintShown') === 'true';
+    },
+    setCartHintShown() {
+        localStorage.setItem('cartDragHintShown', 'true');
     }
 };
