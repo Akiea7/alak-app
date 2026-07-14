@@ -6,6 +6,10 @@ import { SearchController } from './features/searchController.js';
 import { Booking } from './features/booking.js';
 import { showToast } from './utils/helpers.js';
 import { Storage } from './core/storage.js';
+import { Store } from './features/store.js';
+import { KYC } from './features/kyc.js';
+import { Profile } from './features/profile.js';
+import { Driver } from './features/driver.js';
 
 // ربط الدوال بالواجهة (Global Scope)
 window.switchPage = UI.switchPage.bind(UI);
@@ -102,7 +106,31 @@ window.toggleAppMode = () => {
     Storage.saveAppMode(newMode);
     window.applyAppMode(newMode);
 };
+window.renderStoreData = Store.renderStoreData.bind(Store);
+window.switchStoreSubView = Store.switchStoreSubView.bind(Store);
+window.previewProductImage = Store.previewProductImage.bind(Store);
+window.removeProductImage = Store.removeProductImage.bind(Store);
+window.addNewStoreProduct = Store.addNewStoreProduct.bind(Store);
+window.deleteStoreProduct = Store.deleteStoreProduct.bind(Store);
+window.changeMockOrderStatus = Store.changeMockOrderStatus.bind(Store);
 
+// دوال الأمان (KYC)
+window.confirmRoleSelection = KYC.confirmRoleSelection.bind(KYC);
+window.openKYCModal = KYC.openKYCModal.bind(KYC);
+window.closeKYCModal = KYC.closeKYCModal.bind(KYC);
+window.submitDriverApplication = KYC.submitDriverApplication.bind(KYC);
+window.adminApproveDriver = KYC.adminApproveDriver.bind(KYC);
+
+// دوال الملف الشخصي
+window.renderProfileData = Profile.renderProfileData.bind(Profile);
+window.openRoleDashboard = Profile.openRoleDashboard.bind(Profile);
+
+// دوال الكابتن
+window.toggleDriverStatus = Driver.toggleDriverStatus.bind(Driver);
+
+// دوال واجهة صغيرة مأخوذة من الكود الأصلي
+window.openRatingModal = () => { showToast('شكراً لدعمك! سيتم توجيهك للمتجر قريباً ⭐️', 'success'); };
+window.openNotifications = () => { window.switchPage('notifications'); };
 // تحديد الأسعار للمركبات
 document.addEventListener('click', function(e) {
     const btn = e.target.closest('.vehicle-type');
