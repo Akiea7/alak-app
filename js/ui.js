@@ -25,7 +25,7 @@ export const UI = {
         if (container && container.innerHTML.trim() === '') {
             container.innerHTML = '<div class="flex justify-center mt-32"><div class="w-10 h-10 border-4 border-gold-400 border-t-transparent rounded-full animate-spin"></div></div>';
             try {
-                const url = `/${folder}/${fileName}.html?t=${new Date().getTime()}`;
+                const url = `./${folder}/${fileName}.html?t=${new Date().getTime()}`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Not found');
                 const html = await response.text();
