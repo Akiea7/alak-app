@@ -1,8 +1,3 @@
-// js/ui.js
-import { Storage } from './core/storage.js';
-import { CONFIG } from './core/config.js';
-
-export const UI = {
     async switchPage(pageId, addToHistory = true) {
         let folder = 'pages'; let fileName = pageId; let navId = pageId;
 
@@ -25,7 +20,9 @@ export const UI = {
         if (container && container.innerHTML.trim() === '') {
             container.innerHTML = '<div class="flex justify-center mt-32"><div class="w-10 h-10 border-4 border-gold-400 border-t-transparent rounded-full animate-spin"></div></div>';
             try {
-                const url = `./${folder}/${fileName}.html?t=${new Date().getTime()}`;
+                // 🔥 الحل النهائي لمشكلة مسارات GitHub Pages
+                const url = new URL(`../${folder}/${fileName}.html?t=${new Date().getTime()}`, import.meta.url).href;
+                
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Not found');
                 const html = await response.text();
@@ -42,42 +39,3 @@ export const UI = {
             if (pageId === 'store-dashboard') window.renderStoreData();
         }
     },
-
-    toggleMenu() {
-        const drawer = document.getElementById('menuDrawer');
-        const overlay = document.getElementById('menuOverlay');
-        if (drawer.classList.contains('translate-x-full')) {
-            drawer.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); document.body.classList.add('pause-animations');
-        } else {
-            drawer.classList.add('translate-x-full'); overlay.classList.add('hidden'); document.body.classList.remove('pause-animations');
-        }
-    },
-
-    scrollToBooking() {
-        const section = document.getElementById('bookingSection');
-        if (section) { section.scrollIntoView({ behavior: 'smooth', block: 'center' }); } 
-        else {
-            setTimeout(() => {
-                const retrySection = document.getElementById('bookingSection');
-                if(retrySection) retrySection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 500);
-        }
-    },
-
-    toggleTheme() {
-        const body = document.body;
-        body.classList.toggle('light-mode');
-        const isLight = body.classList.contains('light-mode');
-        Storage.saveTheme(isLight ? 'light' : 'dark');
-        
-        if (typeof map !== 'undefined' && map) {
-            map.setOptions({ styles: isLight ? [] : CONFIG.DARK_MAP_STYLE });
-        }
-        window.showToast(isLight ? 'تم تفعيل المظهر الفاتح ☀️' : 'تم تفعيل المظهر الداكن 🌙');
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    },
-
-    initTheme() {
-        if (Storage.getTheme() === 'light') { document.body.classList.add('light-mode'); }
-    }
-};
