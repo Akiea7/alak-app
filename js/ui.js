@@ -20,7 +20,8 @@ export const UI = {
         const container = document.getElementById('page-' + pageId);
         if (container) container.classList.add('active');
         
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+     window.scrollTo(0, 0);
+
 
         if (container && container.innerHTML.trim() === '') {
             container.innerHTML = '<div class="flex justify-center mt-32"><div class="w-10 h-10 border-4 border-gold-400 border-t-transparent rounded-full animate-spin"></div></div>';
