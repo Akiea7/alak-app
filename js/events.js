@@ -4,12 +4,14 @@ import { Auth } from './features/auth.js';
 import { MapController } from './features/mapController.js';
 import { SearchController } from './features/searchController.js';
 import { Booking } from './features/booking.js';
+import { Pricing } from './features/pricing.js'; // استيراد الأسعار الجديد
+import { Cart } from './features/cart.js';       // استيراد السلة الجديد
+import { Store } from './features/store.js';     
+import { KYC } from './features/kyc.js';         
+import { Profile } from './features/profile.js'; 
+import { Driver } from './features/driver.js';   
 import { showToast } from './utils/helpers.js';
 import { Storage } from './core/storage.js';
-import { Store } from './features/store.js';
-import { KYC } from './features/kyc.js';
-import { Profile } from './features/profile.js';
-import { Driver } from './features/driver.js';
 
 // ربط الدوال بالواجهة (Global Scope)
 window.switchPage = UI.switchPage.bind(UI);
@@ -38,13 +40,38 @@ window.closeModal = Booking.closeModal.bind(Booking);
 window.confirmBooking = Booking.confirmBooking.bind(Booking);
 window.showDriverFoundModal = Booking.showDriverFoundModal.bind(Booking);
 window.closeDriverModal = Booking.closeDriverModal.bind(Booking);
-window.addToCart = Booking.addToCart.bind(Booking);
-window.changeQuantity = Booking.changeQuantity.bind(Booking);
-window.openCart = Booking.openCart.bind(Booking);
-window.closeCart = Booking.closeCart.bind(Booking);
-window.checkoutWhatsApp = Booking.checkoutWhatsApp.bind(Booking);
 
-// النوافذ وإدارة الأدوار (مأخوذة من app.js)
+// --- تصحيح ربط السلة (تغيير من Booking إلى Cart) ---
+window.addToCart = Cart.addToCart.bind(Cart);
+window.changeQuantity = Cart.changeQuantity.bind(Cart);
+window.openCart = Cart.openCart.bind(Cart);
+window.closeCart = Cart.closeCart.bind(Cart);
+window.checkoutWhatsApp = Cart.checkoutWhatsApp.bind(Cart);
+
+// دوال المتجر
+window.renderStoreData = Store.renderStoreData.bind(Store);
+window.switchStoreSubView = Store.switchStoreSubView.bind(Store);
+window.previewProductImage = Store.previewProductImage.bind(Store);
+window.removeProductImage = Store.removeProductImage.bind(Store);
+window.addNewStoreProduct = Store.addNewStoreProduct.bind(Store);
+window.deleteStoreProduct = Store.deleteStoreProduct.bind(Store);
+window.changeMockOrderStatus = Store.changeMockOrderStatus.bind(Store);
+
+// دوال الأمان (KYC)
+window.confirmRoleSelection = KYC.confirmRoleSelection.bind(KYC);
+window.openKYCModal = KYC.openKYCModal.bind(KYC);
+window.closeKYCModal = KYC.closeKYCModal.bind(KYC);
+window.submitDriverApplication = KYC.submitDriverApplication.bind(KYC);
+window.adminApproveDriver = KYC.adminApproveDriver.bind(KYC);
+
+// دوال الملف الشخصي
+window.renderProfileData = Profile.renderProfileData.bind(Profile);
+window.openRoleDashboard = Profile.openRoleDashboard.bind(Profile);
+
+// دوال الكابتن
+window.toggleDriverStatus = Driver.toggleDriverStatus.bind(Driver);
+
+// النوافذ وإدارة الأدوار 
 window.openRoleSelection = () => {
     const modal = document.getElementById('roleSelectionModal');
     const sheet = document.getElementById('roleSelectionSheet');
@@ -65,7 +92,6 @@ window.closeRoleSelection = () => {
     }, 500);
 };
 
-// ... (تكملة دوال النافذة البسيطة الباقية مثل openKYCModal و applyAppMode)
 window.closeSubscriptionModal = () => {
     const sheet = document.getElementById('subscriptionSheet');
     sheet.classList.add('translate-y-full');
@@ -106,31 +132,10 @@ window.toggleAppMode = () => {
     Storage.saveAppMode(newMode);
     window.applyAppMode(newMode);
 };
-window.renderStoreData = Store.renderStoreData.bind(Store);
-window.switchStoreSubView = Store.switchStoreSubView.bind(Store);
-window.previewProductImage = Store.previewProductImage.bind(Store);
-window.removeProductImage = Store.removeProductImage.bind(Store);
-window.addNewStoreProduct = Store.addNewStoreProduct.bind(Store);
-window.deleteStoreProduct = Store.deleteStoreProduct.bind(Store);
-window.changeMockOrderStatus = Store.changeMockOrderStatus.bind(Store);
 
-// دوال الأمان (KYC)
-window.confirmRoleSelection = KYC.confirmRoleSelection.bind(KYC);
-window.openKYCModal = KYC.openKYCModal.bind(KYC);
-window.closeKYCModal = KYC.closeKYCModal.bind(KYC);
-window.submitDriverApplication = KYC.submitDriverApplication.bind(KYC);
-window.adminApproveDriver = KYC.adminApproveDriver.bind(KYC);
-
-// دوال الملف الشخصي
-window.renderProfileData = Profile.renderProfileData.bind(Profile);
-window.openRoleDashboard = Profile.openRoleDashboard.bind(Profile);
-
-// دوال الكابتن
-window.toggleDriverStatus = Driver.toggleDriverStatus.bind(Driver);
-
-// دوال واجهة صغيرة مأخوذة من الكود الأصلي
 window.openRatingModal = () => { showToast('شكراً لدعمك! سيتم توجيهك للمتجر قريباً ⭐️', 'success'); };
 window.openNotifications = () => { window.switchPage('notifications'); };
+
 // تحديد الأسعار للمركبات
 document.addEventListener('click', function(e) {
     const btn = e.target.closest('.vehicle-type');
