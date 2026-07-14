@@ -1,38 +1,21 @@
 // js/core/appState.js
-// هذا الكائن (Object) يحفظ كل حالة التطبيق بمكان واحد بدل المتغيرات العشوائية
+import { CONFIG } from './config.js';
 
 export const AppState = {
-    // 1. بيانات الرحلة الحالية (Trip)
-    trip: {
-        pickup: null,      // موقع الانطلاق {lat, lng, address}
-        destination: null, // الوجهة {lat, lng, address}
-        distance: 0,       // المسافة بالكيلومتر
-        duration: '',      // الوقت المتوقع
-        price: 0           // السعر النهائي
-    },
+    currentLocation: { lat: 33.6702, lng: 44.3794 }, // مركز الطارمية
+    map: null, geocoder: null, autocompleteService: null, placesService: null,
+    selectionType: 'destination',
+    pickupLocation: null, destinationLocation: null,
+    searchTimeout: null, estimatedTripPrice: 0,
+    cart: [],
+    isCartDragging: false, dragInitialized: false,
+    userUploadedImage: null,
     
-    // 2. بيانات المستخدم (User)
-    user: {
-        isLoggedIn: false,
-        data: null,        // تفاصيل الحساب من فايربيس
-        role: 'user',      // نوع الحساب (مستخدم عادي أو كابتن)
-        driverStatus: null // حالة السائق (pending, approved)
-    },
-
-    // 3. حالة الواجهة (UI State)
-    ui: {
-        activePage: 'home',
-        isMapOpen: false
-    },
-
-    // دالة لتنظيف بيانات الرحلة (نحتاجها من الزبون يلغي الطلب أو يوصل)
-    resetTrip() {
-        this.trip = {
-            pickup: null,
-            destination: null,
-            distance: 0,
-            duration: '',
-            price: 0
-        };
-    }
+    mockStoreProducts: [
+        { id: 1, name: "حليب المدهش مجفف 400 غرام", price: 6500, desc: "حليب مجفف كامل الدسم مدعم بالفيتامينات", image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=200&h=200&fit=crop" },
+        { id: 2, name: "أرز بسمتي هندي درجة أولى 5 كغم", price: 11000, desc: "أرز حبة طويلة ممتاز للطبخ والمناسبات", image: "https://images.unsplash.com/photo-1586201375761-83865001e8ac?w=200&h=200&fit=crop" }
+    ],
+    mockStoreOrders: [
+        { id: 1084, customer: "ستار جبار", items: "2x زيت، 1x أرز", total: 17500, status: "new" }
+    ]
 };
