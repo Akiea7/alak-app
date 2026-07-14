@@ -25,8 +25,12 @@ export const UI = {
         if (container && container.innerHTML.trim() === '') {
             container.innerHTML = '<div class="flex justify-center mt-32"><div class="w-10 h-10 border-4 border-gold-400 border-t-transparent rounded-full animate-spin"></div></div>';
             try {
-                // الحل الجذري والآمن 100% لمشكلة الروابط في GitHub Pages
-                const url = new URL(`../${folder}/${fileName}.html?t=${new Date().getTime()}`, import.meta.url).href;
+                // الحل الجذري والآمن 100% لمشكلة مسارات GitHub Pages والموبايل
+                let basePath = window.location.pathname;
+                if (basePath.endsWith('.html')) basePath = basePath.substring(0, basePath.lastIndexOf('/'));
+                if (!basePath.endsWith('/')) basePath += '/';
+                
+                const url = `${basePath}${folder}/${fileName}.html?t=${new Date().getTime()}`;
                 
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Not found');
@@ -37,6 +41,7 @@ export const UI = {
                 if (pageId === 'profile') setTimeout(window.renderProfileData, 50); 
                 if (pageId === 'store-dashboard') setTimeout(window.renderStoreData, 50);
             } catch (error) {
+                console.error('Fetch error:', error);
                 container.innerHTML = '<div class="text-center text-red-400 mt-20 font-bold">عذراً، حدث خطأ في تحميل الصفحة. يرجى التحديث.</div>';
             }
         } else {
